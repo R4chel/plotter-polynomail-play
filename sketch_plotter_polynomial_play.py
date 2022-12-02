@@ -8,8 +8,16 @@ from shapely.ops import clip_by_rect
 class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
     numRoots = vsketch.Param(3)
+    numLines = vsketch.Param(10)
     debug = vsketch.Param(False)
 
+    def from_roots(self, vsk:vsketch.Vsketch, roots):
+        f = Polynomial.fromroots(roots)
+        (xs, ys) = f.linspace(1000)
+        pts = LineString(list(zip(xs, ys)))
+        pts = pts.intersection(self.region)
+        vsk.geometry(pts)
+        
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a6", landscape=True)
         scale = "mm"
@@ -20,7 +28,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         # make the (0,0) the center of canvas 
         vsk.translate(width/2,height/2)
 
-        #make x range [-1,1]
+        #make x-range [-1,1]
         vsk.scale(width/2, width/2)
         x_min = 1 
         x_max = -1
@@ -29,7 +37,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         width = 2
         height = 2 * height/width 
 
-        region = Polygon([ (x_min, y_min), (x_max, y_min), (x_max,y_max),(x_min,y_max) ])
+        self.region = Polygon([ (x_min, y_min), (x_max, y_min), (x_max,y_max),(x_min,y_max) ])
         if self.debug:
             vsk.geometry(region)
 
@@ -40,17 +48,8 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             vsk.line(x_min, 0,x_max, 0)
             for root in roots:
                 vsk.circle(root,0, .05)
-        f = Polynomial.fromroots(roots, window, window)
-        print(roots,f)
-        # f.convert()
-        (xs, ys) = f.linspace(1000, window)
-        pts = LineString(list(zip(xs, ys)))
-        pts = pts.intersection(region)
-        vsk.geometry(pts)
         
-
-        # implement your sketch here
-        # vsk.circle(0, 0, self.radius, mode="radius")
+        self.from_roots(vsk, roots)
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
