@@ -9,7 +9,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
     numRoots = vsketch.Param(3)
     numLines = vsketch.Param(10)
-    max_root_delta = vsketch.Param(0.1)
+    max_delta = vsketch.Param(0.1)
     precision = vsketch.Param(3)
     debug = vsketch.Param(False)
 
@@ -52,11 +52,15 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         
         f = Polynomial.fromroots(roots)
         self.draw_polynomial(vsk, f)
+        (xs, ys) = f.linspace(1000)
         for i in range(self.numLines-1):
-            roots = [round(root + vsk.random(-self.max_root_delta, self.max_root_delta),self.precision) for root in roots ]
-            f = Polynomial.fromroots(roots)
-            self.draw_polynomial(vsk, f)
-
+            noise = vsk.noise(xs,ys, grid_mode=False)
+            scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
+            ys = np.add(ys,scaled_noise)
+            pts = LineString(list(zip(xs, ys)))
+            pts = pts.intersection(self.region)
+            vsk.geometry(pts)
+            
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
