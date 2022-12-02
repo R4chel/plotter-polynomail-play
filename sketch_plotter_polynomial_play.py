@@ -40,7 +40,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
 
         self.region = Polygon([ (x_min, y_min), (x_max, y_min), (x_max,y_max),(x_min,y_max) ])
         if self.debug:
-            vsk.geometry(region)
+            vsk.geometry(self.region)
 
         domain = [x_min, x_max]
         window = [x_min, x_max]
@@ -51,8 +51,8 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
                 vsk.circle(root,0, .05)
         
         f = Polynomial.fromroots(roots)
-        self.draw_polynomial(vsk, f)
         (xs, ys) = f.linspace(1000)
+        self.draw_polynomial(vsk, f)
         for i in range(self.numLines-1):
             noise = vsk.noise(xs,ys, grid_mode=False)
             scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
@@ -60,7 +60,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             pts = LineString(list(zip(xs, ys)))
             pts = pts.intersection(self.region)
             vsk.geometry(pts)
-            
+
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
