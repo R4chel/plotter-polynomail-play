@@ -9,12 +9,11 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
     numRoots = vsketch.Param(3)
     numLines = vsketch.Param(10)
-    max_root_delta = vsketch.Param(0.01)
+    max_root_delta = vsketch.Param(0.1)
     precision = vsketch.Param(3)
     debug = vsketch.Param(False)
 
-    def from_roots(self, vsk:vsketch.Vsketch, roots):
-        f = Polynomial.fromroots(roots)
+    def draw_polynomial(self, vsk:vsketch.Vsketch, f):
         (xs, ys) = f.linspace(1000)
         pts = LineString(list(zip(xs, ys)))
         pts = pts.intersection(self.region)
@@ -51,10 +50,12 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             for root in roots:
                 vsk.circle(root,0, .05)
         
-        self.from_roots(vsk, roots)
+        f = Polynomial.fromroots(roots)
+        self.draw_polynomial(vsk, f)
         for i in range(self.numLines-1):
             roots = [round(root + vsk.random(-self.max_root_delta, self.max_root_delta),self.precision) for root in roots ]
-            self.from_roots(vsk, roots)
+            f = Polynomial.fromroots(roots)
+            self.draw_polynomial(vsk, f)
 
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
