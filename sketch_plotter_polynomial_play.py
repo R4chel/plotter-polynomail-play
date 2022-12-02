@@ -7,8 +7,8 @@ from shapely.ops import clip_by_rect
 
 class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
-    # radius = vsketch.Param(2.0)
     numRoots = vsketch.Param(3)
+    debug = vsketch.Param(False)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a6", landscape=True)
@@ -19,11 +19,9 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         
         # make the (0,0) the center of canvas 
         vsk.translate(width/2,height/2)
-        x_min, x_max = width/2, width/2
-        y_min, y_max = -height/2, height/2 
 
         #make x range [-1,1]
-        vsk.scale((width/2), (width/2))
+        vsk.scale(width/2, width/2)
         x_min = 1 
         x_max = -1
         y_min = -height/width
@@ -32,17 +30,20 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         height = 2 * height/width 
 
         region = Polygon([ (x_min, y_min), (x_max, y_min), (x_max,y_max),(x_min,y_max) ])
+        if self.debug:
+            vsk.geometry(region)
 
-        vsk.line(x_min, 0,x_max, 0)
         domain = [x_min, x_max]
         window = [x_min, x_max]
         roots = [round(vsk.random(domain[0], domain[1]),3) for _ in range(self.numRoots)]
-        for root in roots:
-            vsk.circle(root,0, .05)
+        if self.debug:
+            vsk.line(x_min, 0,x_max, 0)
+            for root in roots:
+                vsk.circle(root,0, .05)
         f = Polynomial.fromroots(roots, window, window)
         print(roots,f)
         # f.convert()
-        (xs, ys) = f.linspace(10000, window)
+        (xs, ys) = f.linspace(1000, window)
         pts = LineString(list(zip(xs, ys)))
         pts = pts.intersection(region)
         vsk.geometry(pts)
