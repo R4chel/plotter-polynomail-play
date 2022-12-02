@@ -9,6 +9,8 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
     numRoots = vsketch.Param(3)
     numLines = vsketch.Param(10)
+    max_root_delta = vsketch.Param(0.01)
+    precision = vsketch.Param(3)
     debug = vsketch.Param(False)
 
     def from_roots(self, vsk:vsketch.Vsketch, roots):
@@ -43,13 +45,17 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
 
         domain = [x_min, x_max]
         window = [x_min, x_max]
-        roots = [round(vsk.random(domain[0], domain[1]),3) for _ in range(self.numRoots)]
+        roots = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
         if self.debug:
             vsk.line(x_min, 0,x_max, 0)
             for root in roots:
                 vsk.circle(root,0, .05)
         
         self.from_roots(vsk, roots)
+        for i in range(self.numLines-1):
+            roots = [round(root + vsk.random(-self.max_root_delta, self.max_root_delta),self.precision) for root in roots ]
+            self.from_roots(vsk, roots)
+
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
