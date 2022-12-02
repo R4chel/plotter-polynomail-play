@@ -15,24 +15,34 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         scale = "mm"
         vsk.scale(scale)
         factor = 1 / vp.convert_length(scale)
-        self.width, self.height = factor * vsk.width, factor * vsk.height
+        width, height = factor * vsk.width, factor * vsk.height
+        
         # make the (0,0) the center of canvas 
-        x_min, x_max = -self.width/2, self.width/2
-        y_min, y_max = -self.height/2, self.height/2 
+        vsk.translate(width/2,height/2)
+        x_min, x_max = width/2, width/2
+        y_min, y_max = -height/2, height/2 
+
+        #make x range [-1,1]
+        vsk.scale((width/2), (width/2))
+        x_min = 1 
+        x_max = -1
+        y_min = -height/width
+        y_max = height/width 
+        width = 2
+        height = 2 * height/width 
 
         region = Polygon([ (x_min, y_min), (x_max, y_min), (x_max,y_max),(x_min,y_max) ])
 
-        vsk.translate(self.width/2,self.height/2)
-
-        vsk.line(-self.width/2, 0,self.width/2, 0)
-        window = [-self.width/2, self.width/2]
-        roots = [round(vsk.random(x_min, x_max),3) for _ in range(self.numRoots)]
+        vsk.line(x_min, 0,x_max, 0)
+        domain = [x_min, x_max]
+        window = [x_min, x_max]
+        roots = [round(vsk.random(domain[0], domain[1]),3) for _ in range(self.numRoots)]
         for root in roots:
-            vsk.circle(root,0, 5)
+            vsk.circle(root,0, .05)
         f = Polynomial.fromroots(roots, window, window)
         print(roots,f)
-        f.convert()
-        (xs, ys) = f.linspace()
+        # f.convert()
+        (xs, ys) = f.linspace(10000, window)
         pts = LineString(list(zip(xs, ys)))
         pts = pts.intersection(region)
         vsk.geometry(pts)
