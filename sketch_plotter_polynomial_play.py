@@ -20,7 +20,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         vsk.geometry(pts)
         
     def draw(self, vsk: vsketch.Vsketch) -> None:
-        vsk.size("a6", landscape=True)
+        vsk.size("a6", landscape=True, center=False)
         scale = "mm"
         vsk.scale(scale)
         factor = 1 / vp.convert_length(scale)
