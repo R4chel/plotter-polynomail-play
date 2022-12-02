@@ -44,22 +44,23 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
 
         domain = [x_min, x_max]
         window = [x_min, x_max]
-        roots = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
+        # roots = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
+        coefs = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
         if self.debug:
             vsk.line(x_min, 0,x_max, 0)
             for root in roots:
                 vsk.circle(root,0, .05)
-        
-        f = Polynomial.fromroots(roots)
+
+        f = Polynomial(coefs)
         (xs, ys) = f.linspace(1000)
         self.draw_polynomial(vsk, f)
         for i in range(self.numLines-1):
-            noise = vsk.noise(xs,ys, grid_mode=False)
-            scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
-            ys = np.add(ys,scaled_noise)
-            pts = LineString(list(zip(xs, ys)))
-            pts = pts.intersection(self.region)
-            vsk.geometry(pts)
+            noise = vsk.noise(coefs, grid_mode=False)
+            # scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
+            coefs = [ coefs[i]  +vsk.map(noise[i],0,1,-self.max_delta, self.max_delta) for i in range(len(noise))]
+            # ys = np.add(ys,scaled_noise)
+            f = Polynomial(coefs)
+            self.draw_polynomial(vsk, f)
 
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
