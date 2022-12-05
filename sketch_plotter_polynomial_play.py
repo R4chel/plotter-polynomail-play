@@ -44,14 +44,15 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
 
         domain = [x_min, x_max]
         window = [x_min, x_max]
-        # roots = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
-        coefs = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
+        roots = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
+        f = Polynomial.fromroots(roots)
+        # coefs = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
+        # f = Polynomial(coefs)
         if self.debug:
             vsk.line(x_min, 0,x_max, 0)
             for root in roots:
                 vsk.circle(root,0, .05)
 
-        f = Polynomial(coefs)
         (xs, ys) = f.linspace(1000)
         self.draw_polynomial(vsk, f)
         for i in range(self.numLines-1):
