@@ -55,7 +55,8 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         (xs, ys) = f.linspace(1000)
         self.draw_polynomial(vsk, f)
         for i in range(self.numLines-1):
-            noise = vsk.noise(coefs, grid_mode=False)
+            zs =[i for _ in range(len(coefs))]
+            noise = vsk.noise(coefs, zs,  grid_mode=False)
             # scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
             coefs = [ coefs[i]  +vsk.map(noise[i],0,1,-self.max_delta, self.max_delta) for i in range(len(noise))]
             # ys = np.add(ys,scaled_noise)
