@@ -13,7 +13,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     precision = vsketch.Param(3)
     debug = vsketch.Param(False)
     mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
-    y_offset = vsketch.Param(0.5)
+    y_offset = vsketch.Param(0.3, decimals=2)
     y_delta = vsketch.Param(-0.01, decimals=4)
 
     def draw_polynomial(self, vsk:vsketch.Vsketch, f):
@@ -34,8 +34,8 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
 
         #make x-range [-1,1]
         vsk.scale(width/2, width/2)
-        x_min = 1 
-        x_max = -1
+        x_min = -1 
+        x_max = 1
         y_min = -height/width
         y_max = height/width 
         width = 2
@@ -50,7 +50,8 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         roots = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
         f = Polynomial.fromroots(roots)
         if self.debug:
-            vsk.line(x_min, 0,x_max, 0)
+            vsk.line(0,0,0,y_max)
+            vsk.line(0, 0,x_max, 0)
             for root in roots:
                 vsk.circle(root,0, .05)
 
