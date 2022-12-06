@@ -13,6 +13,8 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     precision = vsketch.Param(3)
     debug = vsketch.Param(False)
     mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
+    y_offset = vsketch.Param(0.5)
+    y_delta = vsketch.Param(-0.01, decimals=4)
 
     def draw_polynomial(self, vsk:vsketch.Vsketch, f):
         (xs, ys) = f.linspace(1000)
@@ -47,21 +49,25 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         window = [x_min, x_max]
         roots = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
         f = Polynomial.fromroots(roots)
-        # coefs = [round(vsk.random(domain[0], domain[1]),self.precision) for _ in range(self.numRoots)]
-        # f = Polynomial(coefs)
         if self.debug:
             vsk.line(x_min, 0,x_max, 0)
             for root in roots:
                 vsk.circle(root,0, .05)
 
+        
         (xs, ys) = f.linspace(1000)
-        self.draw_polynomial(vsk, f)
+        ys = ys + self.y_offset
+        pts = LineString(list(zip(xs, ys)))
+        pts = pts.intersection(self.region)
+        vsk.geometry(pts)
         for i in range(self.numLines-1):
             zs = np.full(len(xs), i)
             noise = vsk.noise(xs,ys,zs, grid_mode=False)
             # scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
+            
             scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=-self.max_delta, stop2=self.max_delta, )
             ys = np.add(ys,scaled_noise)
+            ys = ys + self.y_delta
             pts = LineString(list(zip(xs, ys)))
             pts = pts.intersection(self.region)
             vsk.geometry(pts)
