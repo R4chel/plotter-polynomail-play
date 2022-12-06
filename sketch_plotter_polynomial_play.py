@@ -14,7 +14,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     debug = vsketch.Param(False)
     mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
     y_offset = vsketch.Param(0.3, decimals=2)
-    y_delta = vsketch.Param(-0.01, decimals=4)
+    y_delta = vsketch.Param(-0.01, decimals=6)
 
     def draw_polynomial(self, vsk:vsketch.Vsketch, f):
         (xs, ys) = f.linspace(1000)
@@ -65,11 +65,13 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             zs = np.full(len(xs), i)
             noise = vsk.noise(xs,ys,zs, grid_mode=False)
             # scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
-            
+
+            # noise = np.sqrt(noise)
             scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=-self.max_delta, stop2=self.max_delta, )
             ys = np.add(ys,scaled_noise)
-            ys = ys + self.y_delta
-            pts = LineString(list(zip(xs, ys)))
+            # ys = ys + self.y_delta
+            ys_to_draw = ys + self.y_delta * i + self.y_offset
+            pts = LineString(list(zip(xs, ys_to_draw)))
             pts = pts.intersection(self.region)
             vsk.geometry(pts)
 
