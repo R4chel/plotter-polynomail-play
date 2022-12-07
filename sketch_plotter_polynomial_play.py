@@ -6,6 +6,16 @@ from shapely.geometry import Point, LineString, Polygon
 from shapely.ops import clip_by_rect
 import math
 
+fns = {
+    "noop": (lambda x: x),
+    "zero": (lambda x: 0),
+    "sin": np.sin,
+    "cos": np.cos,
+    "sqrt": np.sqrt,
+    "sqr": (lambda x: x**2),
+    "third": (lambda x: x**3)
+}
+
 
 class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
@@ -13,19 +23,14 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     numRoots = vsketch.Param(3)
     numLines = vsketch.Param(10)
     num_pts = vsketch.Param(1000)
-    max_delta = vsketch.Param(0.1)
     precision = vsketch.Param(3)
     # mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
     y_offset = vsketch.Param(0.3, decimals=2)
     y_delta = vsketch.Param(-0.01, decimals=6)
     draw_first_line = vsketch.Param(False)
     layer_count = vsketch.Param(1)
-
-    def draw_polynomial(self, vsk: vsketch.Vsketch, f):
-        (xs, ys) = f.linspace(self.num_pts)
-        pts = LineString(list(zip(xs, ys)))
-        pts = pts.intersection(self.region)
-        vsk.geometry(pts)
+    max_delta = vsketch.Param(0.1)
+    z_fn = vsketch.Param("noop", choices=fns.keys())
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a6", landscape=True, center=False)
@@ -74,7 +79,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         layers = range(1, self.layer_count + 1)
         for i in range(1, self.numLines + 1):
             # zs = np.full(len(xs), i)
-            zs = [i for j in range(len(xs))]
+            zs = [i + fns[self.z_fn](j) for j in range(len(xs))]
             noise = vsk.noise(xs, ys, zs, grid_mode=False)
             # noise = np.sqrt(noise)
             # noise = np.sqrt(noise)
