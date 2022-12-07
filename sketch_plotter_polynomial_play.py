@@ -66,7 +66,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             pts = pts.intersection(self.region)
             vsk.geometry(pts)
         layers = range(1, self.layer_count+1)
-        for i in range(1,self.numLines):
+        for i in range(1,self.numLines+1):
             # zs = np.full(len(xs), i)
             zs = [ i*np.sin(j) for j in range(len(xs))]
             noise = vsk.noise(xs,ys,zs, grid_mode=False)
@@ -80,7 +80,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             ys_to_draw = ys + self.y_delta * i + self.y_offset
             pts = LineString(list(zip(xs, ys_to_draw)))
             pts = pts.intersection(self.region)
-            vsk.fill(layers[i%len(layers)])
+            vsk.stroke(layers[i%len(layers)])
             vsk.geometry(pts)
 
 
