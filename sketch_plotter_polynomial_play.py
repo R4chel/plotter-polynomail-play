@@ -8,7 +8,6 @@ import math
 
 fns = {
     "noop": (lambda x: x),
-    "zero": (lambda x: 0),
     "sin": np.sin,
     "cos": np.cos,
     "sqrt": np.sqrt,
@@ -31,6 +30,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     layer_count = vsketch.Param(1)
     max_delta = vsketch.Param(0.1)
     z_fn = vsketch.Param("noop", choices=fns.keys())
+    after_noise = vsketch.Param("noop", choices=fns.keys())
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a6", landscape=True, center=False)
@@ -81,8 +81,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             # zs = np.full(len(xs), i)
             zs = [i + fns[self.z_fn](j) for j in range(len(xs))]
             noise = vsk.noise(xs, ys, zs, grid_mode=False)
-            # noise = np.sqrt(noise)
-            # noise = np.sqrt(noise)
+            noise = fns[self.after_noise](noise)
             scaled_noise = list(
                 map(
                     lambda x: vsk.map(x, 0, 1, -self.max_delta, self.max_delta
