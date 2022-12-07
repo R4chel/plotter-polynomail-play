@@ -23,14 +23,14 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     numLines = vsketch.Param(10)
     num_pts = vsketch.Param(1000)
     precision = vsketch.Param(3)
-    # mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
     y_offset = vsketch.Param(0.3, decimals=2)
-    y_delta = vsketch.Param(-0.01, decimals=6)
-    draw_first_line = vsketch.Param(False)
-    layer_count = vsketch.Param(1)
+    y_delta = vsketch.Param(0.01, decimals=6)
     max_delta = vsketch.Param(0.1)
     z_fn = vsketch.Param("noop", choices=fns.keys())
-    after_noise = vsketch.Param("noop", choices=fns.keys())
+    after_noise = vsketch.Param("sqr", choices=fns.keys())
+    mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
+    draw_first_line = vsketch.Param(False)
+    layer_count = vsketch.Param(1)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("a6", landscape=True, center=False)
@@ -82,12 +82,12 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             zs = [i + fns[self.z_fn](j) for j in range(len(xs))]
             noise = vsk.noise(xs, ys, zs, grid_mode=False)
             noise = fns[self.after_noise](noise)
-            scaled_noise = list(
-                map(
-                    lambda x: vsk.map(x, 0, 1, -self.max_delta, self.max_delta
-                                      ), noise))
+            # scaled_noise = list(
+            #     map(
+            #         lambda x: vsk.map(x, 0, 1, -self.max_delta, self.max_delta
+            #                           ), noise))
 
-            # scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=-self.max_delta, stop2=self.max_delta, )
+            scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=-self.max_delta, stop2=self.max_delta, )
             # scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=0, stop2=self.max_delta, )
             ys = np.add(ys, scaled_noise)
             ys_to_draw = ys + self.y_delta * i + self.y_offset
