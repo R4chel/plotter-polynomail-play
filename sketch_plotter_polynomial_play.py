@@ -9,15 +9,18 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
     numRoots = vsketch.Param(3)
     numLines = vsketch.Param(10)
+    num_pts = vsketch.Param(1000)
     max_delta = vsketch.Param(0.1)
     precision = vsketch.Param(3)
     debug = vsketch.Param(False)
     # mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
     y_offset = vsketch.Param(0.3, decimals=2)
     y_delta = vsketch.Param(-0.01, decimals=6)
+    draw_first_line = vsketch.Param(False)
+    layer_count = vsketch.Param(1)
 
     def draw_polynomial(self, vsk:vsketch.Vsketch, f):
-        (xs, ys) = f.linspace(1000)
+        (xs, ys) = f.linspace(self.num_pts)
         pts = LineString(list(zip(xs, ys)))
         pts = pts.intersection(self.region)
         vsk.geometry(pts)
@@ -56,12 +59,14 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
                 vsk.circle(root,0, .05)
 
         
-        (xs, ys) = f.linspace(1000)
-        ys_to_draw = ys + self.y_offset
-        pts = LineString(list(zip(xs, ys_to_draw)))
-        pts = pts.intersection(self.region)
-        vsk.geometry(pts)
-        for i in range(self.numLines-1):
+        (xs, ys) = f.linspace(self.num_pts)
+        if self.draw_first_line:
+            ys_to_draw = ys + self.y_offset
+            pts = LineString(list(zip(xs, ys_to_draw)))
+            pts = pts.intersection(self.region)
+            vsk.geometry(pts)
+        layers = range(1, self.layer_count+1)
+        for i in range(1,self.numLines):
             # zs = np.full(len(xs), i)
             zs = [ i*np.sin(j) for j in range(len(xs))]
             noise = vsk.noise(xs,ys,zs, grid_mode=False)
@@ -75,6 +80,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             ys_to_draw = ys + self.y_delta * i + self.y_offset
             pts = LineString(list(zip(xs, ys_to_draw)))
             pts = pts.intersection(self.region)
+            vsk.fill(layers[i%len(layers)])
             vsk.geometry(pts)
 
 
