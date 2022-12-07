@@ -4,6 +4,7 @@ import numpy as np
 from numpy.polynomial import Polynomial
 from shapely.geometry import Point, LineString, Polygon
 from shapely.ops import clip_by_rect
+import math
 
 class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     # Sketch parameters:
@@ -68,10 +69,10 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
         layers = range(1, self.layer_count+1)
         for i in range(1,self.numLines+1):
             # zs = np.full(len(xs), i)
-            zs = [ i*np.sin(j) for j in range(len(xs))]
+            zs = [ i + j ** 2  for j in range(len(xs))]
             noise = vsk.noise(xs,ys,zs, grid_mode=False)
             # noise = np.sqrt(noise)
-            noise = noise ** 2
+            noise = np.sqrt(noise)
             scaled_noise = list(map(lambda x: vsk.map(x,0,1,-self.max_delta, self.max_delta), noise))
 
             # scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=-self.max_delta, stop2=self.max_delta, )
