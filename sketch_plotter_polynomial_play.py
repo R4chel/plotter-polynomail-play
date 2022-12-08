@@ -87,8 +87,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             #         lambda x: vsk.map(x, 0, 1, -self.max_delta, self.max_delta
             #                           ), noise))
 
-            scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=-self.max_delta, stop2=self.max_delta, )
-            # scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=0, stop2=self.max_delta, )
+            scaled_noise = vsk.easing(noise,mode=self.mode, start1= 0, stop1=1, start2=0, stop2=self.max_delta, )
             ys = np.add(ys, scaled_noise)
             ys_to_draw = ys + self.y_delta * i + self.y_offset
             pts = LineString(list(zip(xs, ys_to_draw)))
