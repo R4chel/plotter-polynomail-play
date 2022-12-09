@@ -7,6 +7,7 @@ from shapely.ops import clip_by_rect
 import math
 
 fns = {
+    "zero" : (lambda x : x - x), 
     "noop": (lambda x: x),
     "sin": np.sin,
     "cos": np.cos,
