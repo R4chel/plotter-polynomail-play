@@ -34,7 +34,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     layer_count = vsketch.Param(1)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
-        vsk.size("a6", landscape=True, center=False)
+        vsk.size("4inx6in", landscape=True, center=False)
         scale = "mm"
         vsk.scale(scale)
         factor = 1 / vp.convert_length(scale)
