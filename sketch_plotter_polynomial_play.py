@@ -29,20 +29,16 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     y_offset = vsketch.Param(0.3, decimals=2)
     y_delta = vsketch.Param(0.01, decimals=6)
     max_delta = vsketch.Param(0.1)
-    z_fn = vsketch.Param("noop", choices=fns.keys())
-    after_noise = vsketch.Param("sqr", choices=fns.keys())
-    mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
     draw_first_line = vsketch.Param(False)
     layer_count = vsketch.Param(1)
 
-    def draw_polynomial(self, vsk, coefficients):
+    def draw_polynomial(self, vsk, coefficients, i):
         f = Polynomial(coefficients)
         (xs, ys) = f.linspace(self.num_pts)
-        if self.draw_first_line:
-            ys_to_draw = ys + self.y_offset
-            pts = LineString(list(zip(xs, ys_to_draw)))
-            pts = pts.intersection(self.region)
-            vsk.geometry(pts)
+        ys_to_draw = ys + (self.y_offset * i)
+        pts = LineString(list(zip(xs, ys_to_draw)))
+        pts = pts.intersection(self.region)
+        vsk.geometry(pts)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("4inx6in", landscape=True, center=False)
@@ -79,14 +75,14 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             vsk.line(0, 0, 0, y_max)
             vsk.line(0, 0, x_max, 0)
 
-        self.draw_polynomial(vsk, coefficients)
+        self.draw_polynomial(vsk, coefficients, 0)
         layers = range(1, self.layer_count + 1)
         for i in range(1, self.numLines + 1):
             coefficients = [
                 c + round(vsk.random(-self.max_delta, self.max_delta),
                           self.precision) for c in coefficients
             ]
-            self.draw_polynomial(vsk, coefficients)
+            self.draw_polynomial(vsk, coefficients, i)
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
         vsk.vpype("linemerge linesimplify reloop linesort")
