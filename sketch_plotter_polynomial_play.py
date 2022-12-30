@@ -32,6 +32,7 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
     mode = vsketch.Param("linear", choices=vsketch.EASING_FUNCTIONS.keys())
     draw_first_line = vsketch.Param(False)
     layer_count = vsketch.Param(1)
+    random_layer_order = vsketch.Param(False)
 
     def draw(self, vsk: vsketch.Vsketch) -> None:
         vsk.size("4inx6in", landscape=True, center=False)
@@ -71,11 +72,11 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
                 vsk.circle(root, 0, .05)
 
         (xs, ys) = f.linspace(self.num_pts)
+        lines = []
         if self.draw_first_line:
             ys_to_draw = ys + self.y_offset
             pts = LineString(list(zip(xs, ys_to_draw)))
-            pts = pts.intersection(self.region)
-            vsk.geometry(pts)
+            lines.append(pts)
 
         layers = range(1, self.layer_count + 1)
         for i in range(1, self.numLines + 1):
@@ -99,8 +100,14 @@ class PlotterPolynomialPlaySketch(vsketch.SketchClass):
             ys = np.add(ys, scaled_noise)
             ys_to_draw = ys + self.y_delta * i + self.y_offset
             pts = LineString(list(zip(xs, ys_to_draw)))
-            pts = pts.intersection(self.region)
-            vsk.stroke(layers[i % len(layers)])
+            lines.append(pts)
+
+        for i in range(len(lines)):
+            line = lines[i]
+            pts = line.intersection(self.region)
+            layer = layers[math.floor(vsk.random(0, len(layers))) if self.
+                           random_layer_order else i % len(layers)]
+            vsk.stroke(layer)
             vsk.geometry(pts)
 
     def finalize(self, vsk: vsketch.Vsketch) -> None:
